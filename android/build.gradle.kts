@@ -6,11 +6,9 @@ import org.apache.tools.ant.taskdefs.condition.Os
 import org.apache.tools.ant.taskdefs.condition.Os.FAMILY_MAC
 import org.apache.tools.ant.taskdefs.condition.Os.FAMILY_UNIX
 import org.apache.tools.ant.taskdefs.condition.Os.FAMILY_WINDOWS
-import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.android.library)
     alias(libs.plugins.dokka)
 }
@@ -19,10 +17,10 @@ val inaMinSdk = 29
 
 android {
     namespace = "app.accrescent.ina"
-    compileSdk = 36
+    compileSdk = 37
 
-    buildToolsVersion = "36.0.0"
-    ndkVersion = "27.3.13750724"
+    buildToolsVersion = "37.0.0"
+    ndkVersion = "30.0.14904198"
 
     defaultConfig {
         minSdk = inaMinSdk
@@ -81,7 +79,7 @@ tasks.register<Exec>("buildJniLibs") {
         Os.isFamily(FAMILY_WINDOWS) -> "windows-x86_64"
         else -> throw TaskExecutionException(this, Exception("unsupported host platform"))
     }
-    val toolchainDir = "${android.ndkDirectory}/toolchains/llvm/prebuilt/$hostTag/bin"
+    val toolchainDir = "${androidComponents.sdkComponents.ndkDirectory.get().asFile.absolutePath}/toolchains/llvm/prebuilt/$hostTag/bin"
     val api = inaMinSdk
     val aarch64CcPath = "$toolchainDir/aarch64-linux-android$api-clang"
     val x8664CcPath = "$toolchainDir/x86_64-linux-android$api-clang"
@@ -134,13 +132,12 @@ tasks.clean {
     delete(fileTree("$projectDir/src/main/jniLibs"))
 }
 
-tasks.withType<DokkaTask>().configureEach {
-    failOnWarning.set(true)
-
-    dokkaSourceSets {
-        configureEach {
-            reportUndocumented.set(true)
-            suppressInheritedMembers.set(true)
-        }
+dokka {
+    dokkaPublications.configureEach {
+        failOnWarning.set(true)
+        suppressInheritedMembers.set(true)
+    }
+    dokkaSourceSets.configureEach {
+        reportUndocumented.set(true)
     }
 }
