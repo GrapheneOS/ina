@@ -13,7 +13,7 @@ plugins {
     alias(libs.plugins.dokka)
 }
 
-val inaMinSdk = 29
+val inaMinSdk = 31
 
 android {
     namespace = "app.accrescent.ina"
