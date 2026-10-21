@@ -16,6 +16,7 @@ exclude = ["tests/testdata"]
 crate-type = ["cdylib", "lib"]
 
 [dependencies]
+brotli-decompressor = { version = "6.1.0", optional = true }
 byteorder = "1.5.0"
 integer-encoding = "4.0.0"
 jni-sys = { version = "0.4.1", optional = true }
@@ -32,7 +33,7 @@ blake3 = "1.5.1"
 [features]
 default = ["diff", "patch"]
 diff = ["sufsort", "zstd/zstdmt"]
-java-ffi = ["dep:jni-sys"]
+java-ffi = ["dep:brotli-decompressor", "dep:jni-sys"]
 patch = []
 sandbox = ["libc", "seccompiler"]
 
