@@ -50,7 +50,7 @@ mod bsdiff;
 mod diff;
 #[cfg(any(feature = "diff", feature = "patch"))]
 mod header;
-#[cfg(feature = "java-ffi")]
+#[cfg(all(feature = "java-ffi", target_os = "android"))]
 mod jni;
 #[cfg(feature = "patch")]
 mod patch;

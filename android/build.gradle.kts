@@ -97,7 +97,7 @@ tasks.register<Exec>("buildJniLibs") {
         "ina",
         "--no-default-features",
         "--features",
-        "java-ffi,patch,sandbox",
+        "java-ffi,patch",
         "--target",
         "aarch64-linux-android",
         "--target",
