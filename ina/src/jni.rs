@@ -63,3 +63,37 @@ unsafe extern "system" fn Java_app_accrescent_ina_Ina_patchInner(
         },
     }
 }
+
+// SAFETY: There is no other global function with this name
+#[unsafe(no_mangle)]
+unsafe extern "system" fn Java_app_accrescent_ina_Ina_unbrotliInner(
+    env: JNIEnv,
+    _class: JClass,
+    src_fd: JObject,
+    dst_fd: JObject,
+) -> jlong {
+    // SAFETY: The caller guarantees that [src_fd] is an open file descriptor
+    let src_file = ManuallyDrop::new(unsafe { file_from_java_fd(&env, src_fd) });
+    // SAFETY: The caller guarantees that [dst_fd] is an open file descriptor
+    let mut dst_file = ManuallyDrop::new(unsafe { file_from_java_fd(&env, dst_fd) });
+
+    let mut decompressor = brotli_decompressor::Decompressor::new(&*src_file, 64 * 1024);
+    match std::io::copy(&mut decompressor, &mut *dst_file) {
+        Ok(num_bytes) => {
+            if num_bytes > i64::MAX as u64 {
+                -(1 << 32)
+            } else {
+                num_bytes as jlong
+            }
+        }
+        Err(error) => {
+            if let Some(errno) = error.raw_os_error()
+                && errno > 0
+            {
+                -errno as jlong
+            } else {
+                -(2 << 32)
+            }
+        }
+    }
+}

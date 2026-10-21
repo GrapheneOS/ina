@@ -37,6 +37,23 @@ public class Ina {
         @JvmStatic
         private external fun patchInner(old: FileDescriptor, patch: FileDescriptor, new: FileDescriptor): Long
 
+        /**
+         * Decompress brotli from [src] into [dst]. Both file descriptors remain open after
+         * return of this function. Returns the number of bytes written to [dst].
+         */
+        @JvmStatic
+        @Throws(IOException::class)
+        public fun unbrotli(src: FileDescriptor, dst: FileDescriptor): Long {
+            val ret = unbrotliInner(src, dst)
+            if (ret >= 0) {
+                return ret
+            }
+            throwErrorAsIoException(-ret, "unbrotli")
+        }
+
+        @JvmStatic
+        private external fun unbrotliInner(src: FileDescriptor, dst: FileDescriptor): Long
+
         @Throws(IOException::class)
         private fun throwErrorAsIoException(err: Long, functionName: String): Nothing {
             val errCode = err shr 32
